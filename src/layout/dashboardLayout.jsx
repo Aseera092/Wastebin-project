@@ -5,11 +5,14 @@ import { Outlet } from 'react-router-dom'
 
 export default function DashboardLayout() {
   return (
-    <div class="container-fluid">
-      <div class="row flex-nowrap">
+    <div className="container-fluid">
+      <div className="row flex-nowrap">
         <Sidebar />
-        <div class="col py-3">
-          <Outlet />
+        <div className="col">
+          <Navbar />
+          <div className="py-3">
+            <Outlet />
+          </div>
         </div>
       </div>
     </div>

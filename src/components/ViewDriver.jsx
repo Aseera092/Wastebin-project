@@ -2,12 +2,13 @@ import React from 'react'
 
 const ViewDriver = () => {
     return (
-        <div>
-            <div className="container">
+        <div className='container'>
+            <h2>Drivers</h2>
+            <div className='table-container p-3 px-5 shadow p-3 mt-2 bg-white rounded '>
                 <table class="table">
                     <thead>
                         <tr>
-                            <th scope="col">No</th>
+                        <th scope="col">No</th>
                             <th scope="col">Driver ID</th>
                             <th scope="col">Driver Name</th>
                             <th scope="col">Mobile No</th>
@@ -30,12 +31,13 @@ const ViewDriver = () => {
                             <td>@fat</td>
                         </tr>
                         <tr>
-                            <th scope="row"></th>
-                            <td>Larry the Bird</td>
+                            <th scope="row">3</th>
+                            <td >Larry the Bird</td>
                             <td>@twitter</td>
                             <td>@twitter</td>
                             <td>@twitter</td>
                         </tr>
+
                     </tbody>
                 </table>
             </div>
