@@ -8,6 +8,8 @@
 # testing
 /coverage
 
+.donor-50002-firebase-adminsdk-rle7e-5168946c84.js
+
 # production
 /build
 
