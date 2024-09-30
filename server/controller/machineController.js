@@ -1,6 +1,6 @@
 const Machine = require("../model/machineModel")
 const firebase = require("firebase-admin")
-const serviceAccount = require('../donor-50002-firebase-adminsdk-rle7e-5168946c84.json');
+const serviceAccount = require('../wastebin-tracker-firebase-adminsdk-pwn8p-817bc87978.json');
 firebase.initializeApp({
     credential: firebase.credential.cert(serviceAccount),
     databaseURL: 'https://donor-50002.firebaseio.com'

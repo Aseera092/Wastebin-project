@@ -4,7 +4,7 @@
 /node_modules
 /.pnp
 .pnp.js
-.server/donor-50002-firebase-adminsdk-rle7e-5168946c84.json
+/server/wastebin-tracker-firebase-adminsdk-pwn8p-817bc87978.json
 
 # testing
 /coverage
