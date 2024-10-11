@@ -1,6 +1,6 @@
-const Driver = require("../model/driverModel");
+const User = require("../model/userModel");
 
-const AddDriver = async (req, res, next) => {
+const AddUser = async (req, res, next) => {
     try {
         // Validate password and confirmPassword
         if (req.body.password !== req.body.confirmPassword) {
@@ -11,42 +11,41 @@ const AddDriver = async (req, res, next) => {
         }
 
         // Check if a driver with the same name already exists
-        const existingDriver = await Driver.findOne({ mobileNo: req.body.mobileNo });
-        if (existingDriver) {
+        const existingUser = await Driver.findOne({ mobileNo: req.body.mobileNo });
+        if (existingUser) {
             return res.status(400).json({
                 status: false,
-                message: "Driver already exists"
+                message: "User already exists"
             });
         }
-        // const DriverId = "DV" + req.body.mobileNo.substring(6,9);
-console.log(req.body);
+        const UserId = "US" + req.body.mobileNo.substring(6,9);
 
         // Create a new driver instance
-        const driver = new Driver(req.body);
-        await driver.save(); // Wait for the save to complete
+        const user = new User(req.body);
+        await user.save(); // Wait for the save to complete
 
         res.status(201).json({
             status: true,
-            message: "Driver added successfully",
-            data: driver // Return the saved driver object
+            message: "User added successfully",
+            data: user // Return the saved driver object
         });
     } catch (error) {
         res.status(500).json({
             status: false,
-            message: 'Error adding driver',
+            message: 'Error adding User',
             error: error.message
         });
     }
 }
 
-const getDriver = async (req, res, next) => {
+const getUser = async (req, res, next) => {
     try {
         // Fetch all Drivers from MongoDB
-        const drivers = await Driver.find();
+        const user = await User.find();
 
         res.status(200).json({
             status: true,
-            data: drivers // Return the list of drivers
+            data: user // Return the list of drivers
         });
     } catch (error) {
         res.status(500).json({
@@ -57,56 +56,56 @@ const getDriver = async (req, res, next) => {
     }
 };
 
-const updateDriver = async (req, res, next) => {
+const updateUser = async (req, res, next) => {
     try {
         // Fetch and update Driver by ID
-        const driver = await Driver.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        const user = await Driver.findByIdAndUpdate(req.params.id, req.body, { new: true });
 
-        if (!driver) {
+        if (!user) {
             return res.status(404).json({
                 status: false,
-                message: 'Driver not found'
+                message: 'User not found'
             });
         }
 
         res.status(200).json({
             status: true,
-            message: "Driver updated successfully",
+            message: "User updated successfully",
             data: driver // Return the updated driver object
         });
     } catch (error) {
         res.status(500).json({
             status: false,
-            message: 'Error updating driver data',
+            message: 'Error updating user data',
             error: error.message
         });
     }
 };
 
-const deleteDriver = async (req, res, next) => {
+const deleteUser = async (req, res, next) => {
     try {
         // Find and delete the driver by ID
-        const driver = await Driver.findByIdAndDelete(req.params.id);
+        const user = await User.findByIdAndDelete(req.params.id);
 
-        if (!driver) {
+        if (!user) {
             return res.status(404).json({
                 status: false,
-                message: 'Driver not found'
+                message: 'User not found'
             });
         }
 
         res.status(200).json({
             status: true,
-            message: "Driver deleted successfully",
-            data: driver // Return the deleted driver object
+            message: "User deleted successfully",
+            data: user // Return the deleted driver object
         });
     } catch (error) {
         res.status(500).json({
             status: false,
-            message: 'Error deleting driver',
+            message: 'Error deleting user',
             error: error.message
         });
     }
 };
 
-module.exports = { AddDriver, getDriver, updateDriver, deleteDriver };
+module.exports = { AddUser, getUser, updateUser, deleteUser };

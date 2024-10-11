@@ -2,10 +2,11 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
 // Define the driver schema
-const driverSchema = new mongoose.Schema({
-    driverName: {
+const userSchema = new mongoose.Schema({
+    userName: {
         type: String,
-        // required: true,
+        required: true,
+        unique: true
     },
     address: {
         type: String,
@@ -13,9 +14,7 @@ const driverSchema = new mongoose.Schema({
     },
     mobileNo: {
         type: Number,
-        required: true,
-        unique: true
-
+        required: true
     },
     alternateMobileNo: {
         type: Number,
@@ -25,15 +24,19 @@ const driverSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    idProof: {
+    house_no: {
         type: String,
         required: true,
     },
-    uploadIdProof: {
+    location_details: {
         type: String,
         required: true,
     },
-    vehicleNo: {
+    request_date: {
+        type: String,
+        required: true,
+    },
+    suggestions: {
         type: String,
         required: true,
     },
@@ -47,6 +50,10 @@ const driverSchema = new mongoose.Schema({
         type: String,
         required: true,
         minlength: 6 // Minimum password length
+    },
+    confirmPassword: {
+        type: String,
+        required: true
     }
 }, { timestamps: true });
 
@@ -65,6 +72,6 @@ driverSchema.methods.isPasswordMatch = function(plainPassword) {
 };
 
 // Create the driver model
-const Driver = mongoose.model('Driver', driverSchema);
+const User = mongoose.model('User', userSchema);
 
-module.exports = Driver;
+module.exports = User;
