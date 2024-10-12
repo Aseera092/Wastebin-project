@@ -1,35 +1,32 @@
 import React, { useEffect, useState } from 'react'
 import { GoogleMap, InfoWindow, Marker, useJsApiLoader } from '@react-google-maps/api';
+import { getMachine } from '../services/machine';
 
-const CurrentLocation = () => <i className='fa fa-2x fa-location' style={{ color: 'blue' }}></i>;
 
-const Spots = () => <i className='fa fa-2x fa-map-marker' style={{ color: 'red' }}></i>;
 
 
 export default function MapView() {
 
-    const [position, setPosition] = useState({ latitude: null, longitude: null });
+    const [currentLocation, setCurrentLocation] = useState(null);
+    const [machines, setMachines] = useState([]);
 
     useEffect(() => {
         if ("geolocation" in navigator) {
             navigator.geolocation.getCurrentPosition(function (position) {
-                setPosition({
+                setCurrentLocation({
                     latitude: position.coords.latitude,
                     longitude: position.coords.longitude,
                 });
             });
         } else {
-            console.log("Geolocation is not available in your browser.");
+            console.error("Geolocation is not available in your browser.");
         }
+        getMachine().then((res => {
+            console.log(res);
+            setMachines(res.data.map((dt) => ({ lat: dt.latitude, lng: dt.longitude, storage: dt.storage })))
+        }))
     }, []);
 
-    const defaultProps = {
-        center: {
-            lat: 10.206820,
-            lng: 76.377058
-        },
-        zoom: 15
-    };
     const handleApiLoaded = (map, maps) => {
         console.log(map);
 
@@ -52,27 +49,51 @@ export default function MapView() {
                 height: '100vh', width: '100%'
             }}>
             {
-                position.latitude && isLoaded ?
+                machines[0]?.lat && isLoaded ?
                     <GoogleMap
                         mapContainerStyle={{
                             height: "100%",
                             width: "100%"
                         }}
-                        zoom={defaultProps.zoom}
-                        center={defaultProps.center}
+                        zoom={20}
+                        center={
+                            currentLocation
+                                ? currentLocation
+                                : { lat: machines[0].lat, lng: machines[0].lng }
+                        }
                         streetViewControl={false}
                     //   onClick={() => setSelectedCenter(null)}
                     >
+                        {
+                            machines.map((dt) => {
+                                return (
+                                    <Marker position={dt}
+                                        icon={{
+                                            url: `data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="${dt.storage > 50 ? 'red' : 'black'}"><path d="M432 32H312l-9.4-18.7A24 24 0 00281.1 0H166.9a24 24 0 00-21.5 13.3L136 32H16A16 16 0 000 48v16a16 16 0 0016 16h16l21.2 339.3A48 48 0 00100.8 480h246.4a48 48 0 0047.6-42.7L416 80h16a16 16 0 0016-16V48a16 16 0 00-16-16zM166.9 48h114.3l7.2 14.7H159.7L166.9 48zM368 432H80L59 80h330l-21 352z"/></svg>`,
+                                            scaledSize: new window.google.maps.Size(45, 45), // Scale the icon size
+                                            anchor: new window.google.maps.Point(10, 10), // Anchor the icon
+                                        }}
+                                        label={{
+                                            text: `${dt.storage}%`, // Show storage percentage as text
+                                            color: dt.storage > 50 ? "red" : "black", // Customize label color
+                                            fontSize: "12px", // Customize font size
+                                            fontWeight: "bold",
+                                        }}
+                                    //   onClick={() => setSelectedCenter({position,...item})}
+                                    />
+                                )
+                            })
+                        }
 
-                        <Marker
-                            position={{lat: position.latitude,lng: position.longitude}}
-                            // icon={{
-                            //     // url: item.charger_status.toLowerCase() === 'available' ? operationalIconUrl : item.charger_status.toLowerCase() === 'busy' ? faultOperationalIconUrl : item.charger_status.toLowerCase() === 'unavailable' ? nonOperationalIconUrl : nonOperationalIconUrl,
-                            //     scaledSize: new window.google.maps.Size(35, 35), // Scale the icon size
-                            //     anchor: new window.google.maps.Point(10, 10), // Anchor the icon
-                            // }}
-                        //   onClick={() => setSelectedCenter({position,...item})}
-                        />
+                        {currentLocation && (
+                            <Marker
+                                position={currentLocation}
+                                icon={{
+                                    url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png", // Custom icon for current location
+                                }}
+                            />
+                        )}
+
 
 
                         {/* {selectedCenter && <InfoWindow

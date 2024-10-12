@@ -92,35 +92,35 @@ const ViewDriver = () => {
   return (
     <div className='container'>
       <h2>Drivers</h2>
-      <div className='table-container p-3 px-5 shadow p-3 mt-2 bg-white rounded'>
+      <div className='table-container overflow-scroll p-3 px-5 shadow p-3 mt-2 bg-white rounded'>
         <table className='table'>
           <thead>
             <tr>
-              <th scope='col'>No</th>
-              <th scope='col'>Driver Name</th>
-              <th scope='col'>Address</th>
-              <th scope='col'>Mobile No</th>
-              <th scope='col'>Alternate Mobile No</th>
-              <th scope='col'>Email-ID</th>
-              <th scope='col'>ID Proof</th>
-              <th scope='col'>Upload ID proof</th>
-              <th scope='col'>Vehicle No</th>
-              <th scope='col'>Status</th>
-              <th scope='col'>Action</th>
+              <th scope='col' noWrap='nowrap'>No</th>
+              <th scope='col' noWrap='nowrap'>Driver Name</th>
+              <th scope='col' noWrap='nowrap'>Address</th>
+              <th scope='col' noWrap='nowrap'>Mobile No</th>
+              <th scope='col' noWrap='nowrap'>Alternate Mobile No</th>
+              <th scope='col' noWrap='nowrap'>Email-ID</th>
+              <th scope='col' noWrap='nowrap'>ID Proof</th>
+              <th scope='col' noWrap='nowrap'>Upload ID proof</th>
+              <th scope='col' noWrap='nowrap'>Vehicle No</th>
+              <th scope='col' noWrap='nowrap'>Status</th>
+              <th scope='col' noWrap='nowrap'>Action</th>
             </tr>
           </thead>
           <tbody>
             {Driver.map((data, ind) => (
               <tr key={ind}>
                 <th scope='row'>{ind + 1}</th>
-                <td>{data.driverName}</td>
-                <td>{data.address}</td>
-                <td>{data.mobileNo}</td>
-                <td>{data.alternateMobileNo}</td>
-                <td>{data.emailId}</td>
-                <td>{data.idProof}</td>
-                <td>{data.uploadIdProof}</td>
-                <td>{data.vehicleNo}</td>
+                <td noWrap='nowrap'>{data.driverName}</td>
+                <td noWrap='nowrap'>{data.address}</td>
+                <td noWrap='nowrap'>{data.mobileNo}</td>
+                <td noWrap='nowrap'>{data.alternateMobileNo}</td>
+                <td noWrap='nowrap'>{data.emailId}</td>
+                <td noWrap='nowrap'>{data.idProof}</td>
+                <td noWrap='nowrap'><a href={`http://localhost:3005/${data.uploadIdProof}`} target='_blank' >View</a></td>
+                <td noWrap='nowrap'>{data.vehicleNo}</td>
                 <td>
                   <span className={data.status === 'online' ? 'badge bg-success' : 'badge bg-danger'}>
                     {data.status}
@@ -260,7 +260,6 @@ const ViewDriver = () => {
                         name='uploadIdProof'
                         onChange={handleFileChange}
                         className='form-control'
-                        required
                       />
                       {formErrors.uploadIdProof && <small className='text-danger'>{formErrors.uploadIdProof}</small>}
                     </div>
