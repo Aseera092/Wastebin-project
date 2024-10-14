@@ -1,4 +1,12 @@
 const Driver = require("../model/driverModel");
+const Machine = require("../model/machineModel");
+const { firebaseDatabase } = require("../util/firebase-conn");
+
+const { RoutesClient } = require('@googlemaps/routing').v2;
+
+const routingClient = new RoutesClient({
+    keyFilename: './my-project-11472-1728468919587-a50c58416484.json',
+});
 
 const AddDriver = async (req, res, next) => {
     try {
@@ -18,7 +26,8 @@ const AddDriver = async (req, res, next) => {
                 message: "Driver already exists"
             });
         }
-        const DriverId = "DV" + req.body.mobileNo.substring(6,9);
+        // const DriverId = "DV" + req.body.mobileNo.substring(6,9);
+        console.log(req.body);
 
         // Create a new driver instance
         const driver = new Driver(req.body);
@@ -108,4 +117,115 @@ const deleteDriver = async (req, res, next) => {
     }
 };
 
-module.exports = { AddDriver, getDriver, updateDriver, deleteDriver };
+
+
+
+async function callComputeRoutes(origin, destination) {
+    // Construct request
+    const request = {
+        origin: { location: { latLng: origin.latLng } },
+        destination: { location: { latLng: destination.latLng } },
+        travelMode: 'DRIVING',
+        routeModifiers: {
+            avoidTolls: false,
+            avoidHighways: false,
+            avoidFerries: false,
+        },
+
+        computeAlternativeRoutes: false,
+        // Provide FieldMask to specify what fields should be returned
+        routeLabels: ['ROUTE_LABEL_PREFERRED'],
+        travelMode: 'DRIVE',
+        // Include required fields for the response
+        routeObjective: {
+            unit: 'METRIC'
+        },
+    };
+
+    // Run request
+    const response = await routingClient.computeRoutes(request, {
+        otherArgs: {
+            headers: {
+                "X-Goog-FieldMask": "*",
+            },
+        },
+    });
+
+    // console.log(response[0].routes[0].distanceMeters);
+    return response[0].routes[0] ? response[0].routes[0].distanceMeters : undefined
+}
+
+const machineDirection = async (req, res, next) => {
+    try {
+        // Get current location from request body
+        console.log(req.body);
+        
+        const currentLocation = req.body.location;
+        console.log('Current Location:', currentLocation);
+        const machines = await Machine.find()
+        let shortDistance = 0
+        let shortDistanceMachine = undefined
+        if (!currentLocation || !currentLocation.latLng) {
+            throw new Error("Invalid location format. Expecting { latLng: { latitude, longitude } }");
+        }
+
+        if (machines) {
+            // Use Promise.all to resolve all promises in the map
+            const mech = await Promise.all(machines.map(async (machine) => {
+                const snapshot = await firebaseDatabase.ref(`${machine.machineId}/status`).once('value');
+                const storage = snapshot.val();
+                if (storage == 0) {
+                    return {
+                        ...machine._doc,
+                        storage
+                    };
+                }
+            }));
+            const filteredMech = mech.filter(machine => machine !== undefined && machine !== null);
+            console.log(filteredMech);
+            
+            for (const dt of filteredMech) {
+                console.log("latitude", dt.latitude, "longitude", dt.longitude);
+
+                const distance = await callComputeRoutes(currentLocation,
+                    { latLng: { latitude: dt.latitude, longitude: dt.longitude } }// Los Angeles
+                );
+
+                if (distance && shortDistance == 0) {
+                    shortDistance = distance
+                    shortDistanceMachine = dt
+                }
+                if (distance && shortDistance > distance) {
+                    shortDistance = distance
+                    shortDistanceMachine = dt
+                }
+                console.log(distance);
+                console.log("short distance", shortDistance);
+                // console.log("short distance machine",shortDistanceMachine);
+            }
+        }
+        if (shortDistanceMachine) {
+            res.status(200).json({
+                status: true,
+                message: "Route computed successfully",
+                data: shortDistanceMachine
+            });
+        }else{
+            res.status(200).json({
+                status: false,
+                message: "There is no wastebin found to collect waste",
+            });
+        }
+        
+    } catch (error) {
+        res.status(500).json({
+            status: false,
+            message: 'Route error',
+            error: error.message
+        });
+    }
+};
+
+
+
+module.exports = { AddDriver, getDriver, updateDriver, deleteDriver, machineDirection };

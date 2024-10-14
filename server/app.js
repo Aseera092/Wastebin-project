@@ -12,7 +12,7 @@ var driver = require('./routes/driver');
 var fileUpload = require('./routes/fileUpload');
 
 const mongoose = require('mongoose');
-
+const userLogin = require('./model/userLogin');
 
 
 var app = express();
@@ -32,6 +32,7 @@ app.use('/users', usersRouter);
 app.use('/machine', machine);
 app.use('/driver',driver );
 app.use('/fileUpload',fileUpload);
+app.use('/userlogin',userLogin);
 
 
 // catch 404 and forward to error handler

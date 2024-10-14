@@ -1,13 +1,5 @@
 const Machine = require("../model/machineModel");
-const firebase = require("firebase-admin");
-const serviceAccount = require('../wastebin-tracker-firebase-adminsdk-pwn8p-817bc87978.json');
-
-firebase.initializeApp({
-    credential: firebase.credential.cert(serviceAccount),
-    databaseURL: 'https://wastebin-tracker-default-rtdb.firebaseio.com/'
-});
-
-const database = firebase.database();
+const { firebaseDatabase } = require("../util/firebase-conn");
 
 const addMachine = async (req, res, next) => {
     const { machineId } = req.body;
@@ -52,7 +44,7 @@ const getMachine = async (req, res, next) => {
 
         // Use Promise.all to resolve all promises in the map
         const dt = await Promise.all(machines.map(async (machine) => {
-            const snapshot = await database.ref(`${machine.machineId}/status`).once('value');
+            const snapshot = await firebaseDatabase.ref(`${machine.machineId}/status`).once('value');
             const storage = snapshot.val();
             return {
                 ...machine._doc,

@@ -1,45 +1,106 @@
-import React, { useEffect, useState } from 'react'
-import { GoogleMap, InfoWindow, Marker, useJsApiLoader } from '@react-google-maps/api';
+import React, { useEffect, useRef, useState } from 'react'
+import { DirectionsRenderer, DirectionsService, GoogleMap, InfoWindow, Marker, MarkerF, useJsApiLoader } from '@react-google-maps/api';
+import { getMachine } from '../services/machine';
+import Truck from '../assets/truck.svg'
+import dustbin from '../assets/dustbin.svg'
+import MachineList from './machineList';
+import { getDirectionWastebin } from '../services/driver';
 
-const CurrentLocation = () => <i className='fa fa-2x fa-location' style={{ color: 'blue' }}></i>;
 
-const Spots = () => <i className='fa fa-2x fa-map-marker' style={{ color: 'red' }}></i>;
 
 
 export default function MapView() {
 
-    const [position, setPosition] = useState({ latitude: null, longitude: null });
-
+    const [currentLocation, setCurrentLocation] = useState(null);
+    const [defaultLocation, setDefaultLocation] = useState({lat:10,lng:96});
+    const [zoom, setZoom] = useState(7);
+    const [machines, setMachines] = useState([]);
+    const [direction, setDirection] = useState();
+    const [isDirection,setIsDirection] = useState(false);
+    const [origin,setOrigin] = useState();
+    const [destination,setDestination] = useState();
+    const count = useRef(0);
+ 
     useEffect(() => {
         if ("geolocation" in navigator) {
             navigator.geolocation.getCurrentPosition(function (position) {
-                setPosition({
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude,
+                setCurrentLocation({
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude,
                 });
             });
         } else {
-            console.log("Geolocation is not available in your browser.");
+            console.error("Geolocation is not available in your browser.");
         }
+        getMachine().then((res => {
+            setMachines(res.data.map((dt) => ({ lat: dt.latitude, lng: dt.longitude, storage: dt.storage })))
+            setDefaultLocation({lat:res.data[0].latitude,lng:res.data[0].longitude})
+        }))
+
+
+
     }, []);
-
-    const defaultProps = {
-        center: {
-            lat: 10.206820,
-            lng: 76.377058
-        },
-        zoom: 15
-    };
-    const handleApiLoaded = (map, maps) => {
-        console.log(map);
-
-    };
 
     const { isLoaded } = useJsApiLoader({
         id: 'google-map-script',
         googleMapsApiKey: 'AIzaSyB_D6SgHRz8T6y2fPiVtAS4uYq0eUfkBUQ'
     })
 
+    const setToCurrentLocation = () => {
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                setDefaultLocation()
+                setCurrentLocation({
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude,
+                });
+                setZoom(18)
+            });
+        } else {
+            console.error("Geolocation is not available in your browser.");
+        }
+
+    }
+
+    const collectWasteHandle = ()=>{
+        
+        getDirectionWastebin({
+            location: {
+                latLng: {
+                    latitude: currentLocation.lat,
+                    longitude: currentLocation.lng
+                }
+            }
+        }).then(res=>{
+            console.log(res);
+            if (res.status) {
+                setOrigin(currentLocation)
+                setDestination({lat: res.data.latitude,lng:res.data.longitude})
+                setIsDirection(true)
+            }else{
+                isDirection(false)
+            }
+        })
+    }
+
+    const directionsCallback = (
+        result,
+        status
+    ) => {
+        if (status === "OK" && count.current === 0) {
+            count.current++;
+            console.count();
+            setDirection(result);
+        }
+    };
+
+    const moveToMachine = (machineData)=>{
+        setDefaultLocation({
+            lat: machineData.latitude,
+            lng: machineData.longitude,
+        });
+        setZoom(18)
+    }
 
     return (
 
@@ -52,27 +113,64 @@ export default function MapView() {
                 height: '100vh', width: '100%'
             }}>
             {
-                position.latitude && isLoaded ?
+                machines[0]?.lat && isLoaded ?
                     <GoogleMap
                         mapContainerStyle={{
                             height: "100%",
                             width: "100%"
                         }}
-                        zoom={defaultProps.zoom}
-                        center={defaultProps.center}
-                        streetViewControl={false}
-                    //   onClick={() => setSelectedCenter(null)}
+                        zoom={zoom}
+                        center={
+                            defaultLocation
+                                ? defaultLocation
+                                : currentLocation
+                        }
+                        options={{ streetViewControl: false }}
                     >
+                        {
+                            machines.map((dt) => {
+                                console.log(dt);
+                                
+                                return (
+                                    <MarkerF position={dt}
+                                        icon={{
+                                            url: `data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="${dt.storage > 50 ? 'red' : 'black'}"><path d="M432 32H312l-9.4-18.7A24 24 0 00281.1 0H166.9a24 24 0 00-21.5 13.3L136 32H16A16 16 0 000 48v16a16 16 0 0016 16h16l21.2 339.3A48 48 0 00100.8 480h246.4a48 48 0 0047.6-42.7L416 80h16a16 16 0 0016-16V48a16 16 0 00-16-16zM166.9 48h114.3l7.2 14.7H159.7L166.9 48zM368 432H80L59 80h330l-21 352z"/></svg>`,
+                                            scaledSize: new window.google.maps.Size(45, 45), // Scale the icon size
+                                            anchor: new window.google.maps.Point(10, 10), // Anchor the icon
+                                        }}
+                                        label={{
+                                            text: `${dt.storage}%`, // Show storage percentage as text
+                                            color: dt.storage > 50 ? "red" : "black", // Customize label color
+                                            fontSize: "12px", // Customize font size
+                                            fontWeight: "bold",
+                                        }}
+                                    //   onClick={() => setSelectedCenter({position,...item})}
+                                    />
+                                )
+                            })
+                        }
 
-                        <Marker
-                            position={{lat: position.latitude,lng: position.longitude}}
-                            // icon={{
-                            //     // url: item.charger_status.toLowerCase() === 'available' ? operationalIconUrl : item.charger_status.toLowerCase() === 'busy' ? faultOperationalIconUrl : item.charger_status.toLowerCase() === 'unavailable' ? nonOperationalIconUrl : nonOperationalIconUrl,
-                            //     scaledSize: new window.google.maps.Size(35, 35), // Scale the icon size
-                            //     anchor: new window.google.maps.Point(10, 10), // Anchor the icon
-                            // }}
-                        //   onClick={() => setSelectedCenter({position,...item})}
-                        />
+                        {currentLocation && (
+                            <MarkerF
+                                position={currentLocation}
+                                icon={{
+                                    url: Truck,
+                                    scaledSize: new window.google.maps.Size(45, 45), // Scale the icon size
+                                    anchor: new window.google.maps.Point(20, 20), // Custom icon for current location
+                                }}
+                            />
+                        )}
+                        {isDirection &&
+                            <DirectionsService
+                            options={{
+                                origin: origin,
+                                destination: destination,
+                                travelMode: window.google.maps.TravelMode.DRIVING
+                            }}
+                            callback={directionsCallback}
+                        /> }
+                        
+                        {isDirection && direction && <DirectionsRenderer directions={direction} />}
 
 
                         {/* {selectedCenter && <InfoWindow
@@ -95,6 +193,12 @@ export default function MapView() {
           </InfoWindow>} */}
                     </GoogleMap> : "Loading..."
             }
+            <div className='current-location-button' onClick={setToCurrentLocation}><i className='fa fa-location-arrow'></i></div>
+            <div className='collect-waste-button' onClick={collectWasteHandle}><h3>Collect Waste</h3></div>
+            {isDirection && <a className='direction-start' target='_blank' href={`https://www.google.com/maps/dir/${origin.lat},${origin.lng}/${destination.lat},${destination.lng}`}>Start</a>}
+            {/* <a className='direction-start' target='_blank' >Start</a> */}
+
+            <MachineList machineclick={moveToMachine}/>
         </div>
     );
 }
