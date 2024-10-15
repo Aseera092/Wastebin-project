@@ -10,6 +10,8 @@ const routingClient = new RoutesClient({
 
 const AddDriver = async (req, res, next) => {
     try {
+        console.log(req.body);
+        
         // Validate password and confirmPassword
         if (req.body.password !== req.body.confirmPassword) {
             return res.status(400).json({
@@ -18,16 +20,22 @@ const AddDriver = async (req, res, next) => {
             });
         }
 
-        // Check if a driver with the same name already exists
-        const existingDriver = await Driver.findOne({ mobileNo: req.body.mobileNo });
-        if (existingDriver) {
+        // Check if a driver with the same mobile already exists
+        const existingNumber = await Driver.findOne({ mobileNo: req.body.mobileNo });
+        if (existingNumber) {
             return res.status(400).json({
                 status: false,
-                message: "Driver already exists"
+                message: "Mobile Already exists"
             });
         }
-        // const DriverId = "DV" + req.body.mobileNo.substring(6,9);
-        console.log(req.body);
+        // Check if a driver with the same email already exists
+        const existingEmail = await Driver.findOne({ emailId: req.body.emailId });
+        if (existingEmail) {
+            return res.status(400).json({
+                status: false,
+                message: "Email Already exists"
+            });
+        }
 
         // Create a new driver instance
         const driver = new Driver(req.body);

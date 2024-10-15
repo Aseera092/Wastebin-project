@@ -101,8 +101,12 @@ const AddDriver = () => {
       const res = await fileUploadAPI(formData);
       if (res.file) {
         const data = { ...driverData, uploadIdProof: res.file.filename };
-        await addDriver(data);
-        toast.success('Driver registered successfully');
+        const result = await addDriver(data);
+        if (result.status) {
+          toast.success('Driver registered successfully');
+        }else{
+          toast.error(result.error ? result.error : result.message);
+        }
       } else {
         toast.error("File upload has an error");
       }

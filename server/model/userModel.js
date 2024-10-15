@@ -6,7 +6,6 @@ const userSchema = new mongoose.Schema({
     userName: {
         type: String,
         required: true,
-        unique: true
     },
     address: {
         type: String,
@@ -58,7 +57,7 @@ const userSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Pre-save middleware to hash the password
-driverSchema.pre('save', async function(next) {
+userSchema.pre('save', async function(next) {
     if (this.isModified('password')) {
         // Hash the password
         this.password = await bcrypt.hash(this.password, 10);
@@ -67,7 +66,7 @@ driverSchema.pre('save', async function(next) {
 });
 
 // Method to check if passwords match
-driverSchema.methods.isPasswordMatch = function(plainPassword) {
+userSchema.methods.isPasswordMatch = function(plainPassword) {
     return bcrypt.compareSync(plainPassword, this.password);
 };
 

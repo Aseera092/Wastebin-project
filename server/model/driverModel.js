@@ -5,9 +5,7 @@ const bcrypt = require('bcrypt');
 const driverSchema = new mongoose.Schema({
     driverName: {
         type: String,
-        required:true,
-        unique: true,
-        // required: true,
+        required:[true,'Driver name is required'],
     },
     address: {
         type: String,
@@ -17,7 +15,6 @@ const driverSchema = new mongoose.Schema({
         type: Number,
         required: true,
         unique: true,
-
     },
     alternateMobileNo: {
         type: Number,
