@@ -22,7 +22,7 @@ const addMachine = async (req, res, next) => {
         const machine = new Machine(req.body);
         await machine.save();  // Save to MongoDB
 
-        await database.ref(machineId).set({ status: 0 });  // Set initial status in Firebase
+        await firebaseDatabase.ref(machineId).set({ status: 0 });  // Set initial status in Firebase
 
         res.status(201).json({
             status: true,

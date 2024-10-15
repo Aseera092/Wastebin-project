@@ -5,6 +5,8 @@ const bcrypt = require('bcrypt');
 const driverSchema = new mongoose.Schema({
     driverName: {
         type: String,
+        required:true,
+        unique: true,
         // required: true,
     },
     address: {
@@ -14,7 +16,7 @@ const driverSchema = new mongoose.Schema({
     mobileNo: {
         type: Number,
         required: true,
-        unique: true
+        unique: true,
 
     },
     alternateMobileNo: {
@@ -23,7 +25,7 @@ const driverSchema = new mongoose.Schema({
     emailId: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
     },
     idProof: {
         type: String,
@@ -41,12 +43,12 @@ const driverSchema = new mongoose.Schema({
         type: String,
         enum: ['online', 'offline'],
         default: 'offline',
-        required: true
+        required: true,
     },
     password: {
         type: String,
         required: true,
-        minlength: 6 // Minimum password length
+        minlength: 6, // Minimum password length
     }
 }, { timestamps: true });
 
