@@ -5,7 +5,7 @@ import Truck from '../assets/truck.svg'
 import dustbin from '../assets/dustbin.svg'
 import MachineList from './machineList';
 import { getDirectionWastebin } from '../services/driver';
-
+import Loader from '../UI/loader';
 
 
 
@@ -19,6 +19,7 @@ export default function MapView() {
     const [isDirection,setIsDirection] = useState(false);
     const [origin,setOrigin] = useState();
     const [destination,setDestination] = useState();
+    const [isShow,setIsShow] = useState(false);
     const count = useRef(0);
  
     useEffect(() => {
@@ -63,7 +64,7 @@ export default function MapView() {
     }
 
     const collectWasteHandle = ()=>{
-        
+        setIsShow(true)
         getDirectionWastebin({
             location: {
                 latLng: {
@@ -92,6 +93,7 @@ export default function MapView() {
             console.count();
             setDirection(result);
         }
+        setIsShow(false)
     };
 
     const moveToMachine = (machineData)=>{
@@ -199,6 +201,7 @@ export default function MapView() {
             {/* <a className='direction-start' target='_blank' >Start</a> */}
 
             <MachineList machineclick={moveToMachine}/>
+            <Loader show={isShow} />
         </div>
     );
 }

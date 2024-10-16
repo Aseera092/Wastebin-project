@@ -15,6 +15,9 @@ const machineSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
+  last_collect: {
+    type: Date,
+  },
   status: {
     type: String,
     enum: ['online', 'offline', 'maintenance'], // Example statuses
