@@ -109,7 +109,7 @@ const deleteMachine = async (req, res, next) => {
        
 
         await Machine.findByIdAndDelete(req.params.id);  // Delete from MongoDB
-        await database.ref(machineId).remove();  // Remove from Firebase
+        await firebaseDatabase.ref(machineId).remove();  // Remove from Firebase
 
         res.status(200).json({
             status: true,
@@ -125,4 +125,41 @@ const deleteMachine = async (req, res, next) => {
     }
 };
 
-module.exports = { addMachine, getMachine, updateMachine, deleteMachine };
+const collectMachineWaste = async (req, res, next) => {
+    try {
+        const machine = await Machine.findById(req.params.id);
+        
+
+        // Validate machine existence
+        if (!machine) {
+            return res.status(404).json({ status: false, error: 'Machine not found.' });
+        }
+
+        const updated = await Machine.findByIdAndUpdate(machine.id, {last_collect: new Date()},{ new: true });
+
+        if (updated) {
+            res.status(200).json({
+                status: true,
+                data: machine
+            });
+        }else{
+            res.status(200).json({
+                status: false,
+                message: 'not updated some error'
+            });
+        }
+        
+
+    } catch (error) {
+        res.status(500).json({
+            status: false,
+            message: 'Error Collecting Waste',
+            error: error.message
+        });
+    }
+};
+
+
+
+
+module.exports = { addMachine, getMachine, updateMachine, deleteMachine, collectMachineWaste };

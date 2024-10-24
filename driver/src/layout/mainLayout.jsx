@@ -1,9 +1,17 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Navbar from './navbar'
-import { Outlet } from 'react-router-dom'
+import { Outlet, useNavigate } from 'react-router-dom'
 import MapView from '../components/mapView'
+import { toast } from 'react-toastify'
 
 export default function MainLayout() {
+    const navigate = useNavigate()
+    useEffect(() => {
+        if (!localStorage.getItem('driverLogin')) {
+            toast.error("please login")
+            navigate('/');
+        }
+    }, [])
     return (
         <main style={{
             position: 'relative'

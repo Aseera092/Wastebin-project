@@ -2,12 +2,12 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 
 const SIDEBARLIST = [
-    {
-        title: 'Dashboard',
-        link: '#',
-        icon: 'fs-4 bi-house',
-        isExtendable: false,
-    },
+    // {
+    //     title: 'Dashboard',
+    //     link: '#',
+    //     icon: 'fs-4 bi-house',
+    //     isExtendable: false,
+    // },
     {
         title: 'Machine',
         link: '',
@@ -16,11 +16,11 @@ const SIDEBARLIST = [
         child: [
             {
                 title: 'Add Machine',
-                link: '/add-machine'
+                link: '/dashboard/add-machine'
             },
             {
                 title: 'View Machine',
-                link: '/view-machine'
+                link: '/dashboard/view-machine'
             }
         ]
     },
@@ -32,11 +32,11 @@ const SIDEBARLIST = [
         child: [
             {
                 title: 'Add Driver',
-                link: '/add-driver'
+                link: '/dashboard/add-driver'
             },
             {
                 title: 'View Drivers',
-                link: '/view-driver'
+                link: '/dashboard/view-driver'
             }
         ]
     },

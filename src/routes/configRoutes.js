@@ -9,6 +9,10 @@ import UserLogin from "../components/UserLogin";
 export const routes = createBrowserRouter([
   {
     path: "/",
+    element: <UserLogin />
+  },
+  {
+    path: "/dashboard",
     element: <DashboardLayout />,
     children: [
       {
@@ -28,9 +32,5 @@ export const routes = createBrowserRouter([
         element: <ViewDriver />
       }
     ]
-  },
-  {
-    path: "user-login",
-    element: <UserLogin />
   }
 ]);

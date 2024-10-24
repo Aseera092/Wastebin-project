@@ -1,5 +1,7 @@
 const Driver = require("../model/driverModel");
 const Machine = require("../model/machineModel");
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const { firebaseDatabase } = require("../util/firebase-conn");
 
 const { RoutesClient } = require('@googlemaps/routing').v2;
@@ -34,6 +36,14 @@ const AddDriver = async (req, res, next) => {
             return res.status(400).json({
                 status: false,
                 message: "Email Already exists"
+            });
+        }
+        // Check if a driver with the same vehicle number already exists
+        const existingVehicleNo = await Driver.findOne({ emailId: req.body.vehicleNo });
+        if (existingVehicleNo) {
+            return res.status(400).json({
+                status: false,
+                message: "Vehicle Number Already exists"
             });
         }
 
@@ -164,6 +174,7 @@ async function callComputeRoutes(origin, destination) {
 }
 
 const machineDirection = async (req, res, next) => {
+    const storageLimit = 0 //Waste collection Limit that can be updated
     try {
         // Get current location from request body
         console.log(req.body);
@@ -182,7 +193,7 @@ const machineDirection = async (req, res, next) => {
             const mech = await Promise.all(machines.map(async (machine) => {
                 const snapshot = await firebaseDatabase.ref(`${machine.machineId}/status`).once('value');
                 const storage = snapshot.val();
-                if (storage == 0) {
+                if (storage >= storageLimit) {
                     return {
                         ...machine._doc,
                         storage
@@ -234,6 +245,29 @@ const machineDirection = async (req, res, next) => {
     }
 };
 
+const driverLogin = async (req, res) => {
+    const { username, password } = req.body;
+
+    try {
+        const driver = await Driver.findOne({ emailId:username });
+        
+        if (!driver) return res.status(404).json({ error: 'User not found' });
+
+        // Check password
+        const isMatch = await bcrypt.compare(password, driver.password);
+        if (!isMatch) return res.status(400).json({ error: 'Invalid credentials' });
+
+        // Generate JWT token
+        const token = jwt.sign({ id: driver._id }, "ASEERA123456", { expiresIn: '1h' });
+
+        res.status(200).json({status:true, token, message: 'Login successful' });
+    } catch (err) {
+        res.status(500).json({status:false, error: 'Login failed' });
+        console.log(err);
+        
+    }
+}
 
 
-module.exports = { AddDriver, getDriver, updateDriver, deleteDriver, machineDirection };
+
+module.exports = { AddDriver, getDriver, updateDriver, deleteDriver, machineDirection, driverLogin };

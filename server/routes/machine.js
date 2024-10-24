@@ -1,5 +1,5 @@
 var express = require('express');
-const { addMachine, getMachine, updateMachine, deleteMachine } = require('../controller/machineController');
+const { addMachine, getMachine, updateMachine, deleteMachine, collectMachineWaste } = require('../controller/machineController');
 var router = express.Router();
 
 
@@ -11,5 +11,8 @@ router.route('/')
 router.route('/:id')
     .put(updateMachine)
     .delete(deleteMachine)
+
+router.route('/collect/:id')
+    .get(collectMachineWaste)
 
 module.exports = router;

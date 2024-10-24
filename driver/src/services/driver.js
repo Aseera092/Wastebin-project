@@ -41,3 +41,13 @@ export const getDirectionWastebin = async (data) => {
     })
     return response.json();
 }
+
+
+export const driverLoginAPI = async (data) => {
+    const response = await fetch(`${SERVICE_URL}driver/login`,{
+        headers: { "Content-Type": "application/json" },
+        method: "POST",
+        body: JSON.stringify(data)
+    })
+    return response.json();
+}

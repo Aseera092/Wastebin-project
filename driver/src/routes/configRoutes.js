@@ -6,7 +6,7 @@ import MapView from "../components/mapView";
 export const routes = createBrowserRouter([
     {
       path: "/",
-      element: <MainLayout />,
+      element: <LoginLayout />,
       // children:[
       //   {
       //     path:"",
@@ -15,7 +15,7 @@ export const routes = createBrowserRouter([
       // ]
     },
     {
-      path: "/login",
-      element: <LoginLayout />,
+      path: "/main",
+      element: <MainLayout />,
     },
   ]);

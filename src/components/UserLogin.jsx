@@ -4,34 +4,49 @@ import 'react-toastify/dist/ReactToastify.css';
 import './Login.css'; // Optional, for adding your custom styles
 import axios from 'axios'; // Assuming you're using axios for API calls
 import {userLogin} from "../services/userLogin";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { userLoginAPI } from "../services/user";
 
 const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const navigate = useNavigate()
+
+
+    useEffect(() => {
+      if(localStorage.getItem('adminLogin')){
+        navigate('/dashboard');
+      }else if (localStorage.getItem('userLogin')) {
+        navigate('/user');
+      }
+    }, [])
+    
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (validateForm()) {
-            try {
-                // Make an API request to your backend for authentication
-                const response = await axios.post('/api/login', { email, password });
-
-                if (response.data.success) {
-                    toast.success("Login Successful!");
-
-                    // Example: Redirect to admin dashboard
-                    if (response.data.isAdmin) {
-                        window.location.href = "/admin-dashboard";
-                    } else {
-                        window.location.href = "/dashboard";
-                    }
+           
+           userLoginAPI({
+            username:email,
+            password:password
+           }).then((res)=>{
+            if (res.status) {
+                toast.success("Login Successful!");
+                // Example: Redirect to admin dashboard
+                if (res.isAdmin) {
+                   navigate('/dashboard')
+                   localStorage.setItem("adminLogin","true")
                 } else {
-                    toast.error(response.data.message || "Login failed!");
+                    navigate('/user')
+                    localStorage.setItem("userLogin","true")
                 }
-
-            } catch (error) {
-                toast.error("An error occurred while logging in.");
+            } else {
+                toast.error(res.message || "Login failed!");
             }
+           }).catch ((error)=> {
+                toast.error("An error occurred while logging in.");
+            })
         }
     };
 

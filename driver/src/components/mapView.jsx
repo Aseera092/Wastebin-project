@@ -1,27 +1,32 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { DirectionsRenderer, DirectionsService, GoogleMap, InfoWindow, Marker, MarkerF, useJsApiLoader } from '@react-google-maps/api';
-import { getMachine } from '../services/machine';
+import { collectWasteAPI, getMachine } from '../services/machine';
 import Truck from '../assets/truck.svg'
 import dustbin from '../assets/dustbin.svg'
 import MachineList from './machineList';
 import { getDirectionWastebin } from '../services/driver';
 import Loader from '../UI/loader';
+import { toast } from 'react-toastify';
 
 
 
 export default function MapView() {
 
-    const [currentLocation, setCurrentLocation] = useState(null);
-    const [defaultLocation, setDefaultLocation] = useState({lat:10,lng:96});
+    const [currentLocation, setCurrentLocation] = useState();
+    const [defaultLocation, setDefaultLocation] = useState({ lat: 10, lng: 96 });
     const [zoom, setZoom] = useState(7);
     const [machines, setMachines] = useState([]);
+    const [currentMachine, setCurrentMachine] = useState();
     const [direction, setDirection] = useState();
-    const [isDirection,setIsDirection] = useState(false);
-    const [origin,setOrigin] = useState();
-    const [destination,setDestination] = useState();
-    const [isShow,setIsShow] = useState(false);
+    const [isDirection, setIsDirection] = useState(false);
+    const [origin, setOrigin] = useState();
+    const [destination, setDestination] = useState();
+    const [isShow, setIsShow] = useState(false);
+    const [isStart, setIsStart] = useState(false);
+    const [mapReload, setMapReload] = useState(true);
+
     const count = useRef(0);
- 
+
     useEffect(() => {
         if ("geolocation" in navigator) {
             navigator.geolocation.getCurrentPosition(function (position) {
@@ -35,12 +40,19 @@ export default function MapView() {
         }
         getMachine().then((res => {
             setMachines(res.data.map((dt) => ({ lat: dt.latitude, lng: dt.longitude, storage: dt.storage })))
-            setDefaultLocation({lat:res.data[0].latitude,lng:res.data[0].longitude})
+            if (res.data.length > 0) {
+                setDefaultLocation({ lat: res.data[0].latitude, lng: res.data[0].longitude })
+            }
         }))
 
 
 
     }, []);
+
+    useEffect(() => {
+      count.current = 0
+    }, [isStart])
+    
 
     const { isLoaded } = useJsApiLoader({
         id: 'google-map-script',
@@ -63,8 +75,11 @@ export default function MapView() {
 
     }
 
-    const collectWasteHandle = ()=>{
+    const collectWasteHandle = () => {
         setIsShow(true)
+        if (!currentLocation) {
+            toast.error("current Location not found . Pls turn on GPS");
+        }
         getDirectionWastebin({
             location: {
                 latLng: {
@@ -72,36 +87,64 @@ export default function MapView() {
                     longitude: currentLocation.lng
                 }
             }
-        }).then(res=>{
+        }).then(res => {
             console.log(res);
             if (res.status) {
                 setOrigin(currentLocation)
-                setDestination({lat: res.data.latitude,lng:res.data.longitude})
+                setDestination({ lat: res.data.latitude, lng: res.data.longitude })
                 setIsDirection(true)
-            }else{
+                setCurrentMachine(res.data)
+            } else {
                 isDirection(false)
             }
         })
     }
 
-    const directionsCallback = (
+    const directionsCallback = useCallback((
         result,
         status
     ) => {
+        
         if (status === "OK" && count.current === 0) {
             count.current++;
             console.count();
             setDirection(result);
+        }else{
+            isStart && setDirection()
         }
         setIsShow(false)
-    };
+    },[]);
 
-    const moveToMachine = (machineData)=>{
+    const moveToMachine = (machineData) => {
         setDefaultLocation({
             lat: machineData.latitude,
             lng: machineData.longitude,
         });
         setZoom(18)
+    }
+    const onStart = ()=>{
+        if (!isStart) {
+            const url = `https://www.google.com/maps/dir/${origin.lat},${origin.lng}/${destination.lat},${destination.lng}`
+            window.open(url,'_blank');
+            setIsStart(true)
+        }else{
+            setIsDirection(false)
+            setIsStart(false)
+            setDefaultLocation(currentLocation)
+            setMapReload(false)
+            collectWasteAPI(currentMachine._id).then((res)=>{
+                console.log(res);
+                
+                if (res.status) {
+                    toast.success("Good Job")
+                }else{
+                    toast.success(res.message)
+                }
+            })
+            setTimeout(() => {
+                setMapReload(true)
+            }, 200);
+        }
     }
 
     return (
@@ -115,7 +158,7 @@ export default function MapView() {
                 height: '100vh', width: '100%'
             }}>
             {
-                machines[0]?.lat && isLoaded ?
+                machines[0]?.lat && isLoaded && mapReload ?
                     <GoogleMap
                         mapContainerStyle={{
                             height: "100%",
@@ -132,7 +175,7 @@ export default function MapView() {
                         {
                             machines.map((dt) => {
                                 console.log(dt);
-                                
+
                                 return (
                                     <MarkerF position={dt}
                                         icon={{
@@ -164,14 +207,14 @@ export default function MapView() {
                         )}
                         {isDirection &&
                             <DirectionsService
-                            options={{
-                                origin: origin,
-                                destination: destination,
-                                travelMode: window.google.maps.TravelMode.DRIVING
-                            }}
-                            callback={directionsCallback}
-                        /> }
-                        
+                                options={{
+                                    origin: origin,
+                                    destination: destination,
+                                    travelMode: window.google.maps.TravelMode.DRIVING
+                                }}
+                                callback={directionsCallback}
+                            />}
+
                         {isDirection && direction && <DirectionsRenderer directions={direction} />}
 
 
@@ -193,14 +236,16 @@ export default function MapView() {
               </Grid>
             </Grid>
           </InfoWindow>} */}
-                    </GoogleMap> : "Loading..."
+                    </GoogleMap> : <div className="d-flex v-100 h-100 justify-content-center align-items-center">
+                        <h1>Loading...</h1>
+                    </div> 
             }
             <div className='current-location-button' onClick={setToCurrentLocation}><i className='fa fa-location-arrow'></i></div>
             <div className='collect-waste-button' onClick={collectWasteHandle}><h3>Collect Waste</h3></div>
-            {isDirection && <a className='direction-start' target='_blank' href={`https://www.google.com/maps/dir/${origin.lat},${origin.lng}/${destination.lat},${destination.lng}`}>Start</a>}
+            {isDirection && <button className='direction-start' onClick={onStart}>{isStart ? "Collected" : "Start" }</button>}
             {/* <a className='direction-start' target='_blank' >Start</a> */}
 
-            <MachineList machineclick={moveToMachine}/>
+            <MachineList machineclick={moveToMachine} />
             <Loader show={isShow} />
         </div>
     );

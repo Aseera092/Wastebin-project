@@ -1,5 +1,5 @@
 var express = require('express');
-const { AddDriver, getDriver, updateDriver, deleteDriver, machineDirection } = require('../controller/driverController');
+const { AddDriver, getDriver, updateDriver, deleteDriver, machineDirection, driverLogin } = require('../controller/driverController');
 var router = express.Router();
 
 
@@ -13,5 +13,6 @@ router.route('/:id')
     .delete(deleteDriver)
 
 router.route('/direction').post(machineDirection)
+router.post('/login', driverLogin);
 
 module.exports = router;

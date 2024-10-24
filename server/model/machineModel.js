@@ -20,8 +20,8 @@ const machineSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['online', 'offline', 'maintenance'], // Example statuses
-    default: 'offline',
+    enum: ['online', 'offline', 'maintenance'], 
+    default: 'online',
     required: true
   }
 }, { timestamps: true }); // This will add createdAt and updatedAt timestamps

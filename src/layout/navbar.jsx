@@ -1,6 +1,8 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 
 export default function Navbar() {
+  const navigate = useNavigate()
   return (
     <nav class="navbar navbar-expand-lg navbar-light bg-light justify-content-end">
       <div className="dropdown">
@@ -14,7 +16,7 @@ export default function Navbar() {
           <li>
             <hr className="dropdown-divider" />
           </li>
-          <li><a className="dropdown-item" href="#">Sign out</a></li>
+          <li><a className="dropdown-item" onClick={()=>{localStorage.clear(); navigate('/')}}>Sign out</a></li>
         </ul>
       </div>
     </nav>

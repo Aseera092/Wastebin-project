@@ -10,10 +10,10 @@ var usersRouter = require('./routes/users');
 var machine = require('./routes/machine');
 var driver = require('./routes/driver');
 var fileUpload = require('./routes/fileUpload');
+var userLogin = require('./routes/userLogin');
+
 
 const mongoose = require('mongoose');
-const userLogin = require('./model/userLogin');
-const { default: UserRequest } = require('../src/components/UserRequest');
 
 
 var app = express();
@@ -33,8 +33,7 @@ app.use('/users', usersRouter);
 app.use('/machine', machine);
 app.use('/driver',driver );
 app.use('/fileUpload',fileUpload);
-app.use('/userlogin',userLogin);
-app.use('/userrequest',UserRequest);
+app.use('/userLogin',userLogin);
 
 
 // catch 404 and forward to error handler

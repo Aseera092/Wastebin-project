@@ -30,3 +30,10 @@ export const deleteMachine = async (id) => {
     })
     return response.json();
 }
+
+export const collectWasteAPI = async (id) => {
+    const response = await fetch(`${SERVICE_URL}machine/collect/${id}`, {
+        method: "GET"
+    })
+    return response.json();
+}

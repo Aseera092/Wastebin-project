@@ -2,12 +2,31 @@ import React, { useState } from 'react'
 import { useEffect } from 'react'
 import { deleteMachine, getMachine, updateMachine } from '../services/machine'
 import { toast } from 'react-toastify'
+import MapPicker from 'react-google-map-picker'
+
+
+const DefaultLocation = {
+  lat: 10.231688,
+  lng: 76.4183711
+};
+
+const DefaultZoom = 15;
 
 const ViewallMachine = () => {
 
   const [machines, setMachines] = useState([])
-  const [selectedMachine,setSelectedMachine] = useState()
+  const [selectedMachine, setSelectedMachine] = useState()
+  const [location, setLocation] = useState(DefaultLocation);
+  const [zoom, setZoom] = useState(DefaultZoom);
 
+
+  function handleChangeLocation(lat, lng) {
+    setLocation({ lat: lat, lng: lng });
+  }
+
+  function handleChangeZoom(newZoom) {
+    setZoom(newZoom);
+  }
   const init = () => {
     getMachine().then((res) => {
       setMachines(res.data)
@@ -29,25 +48,25 @@ const ViewallMachine = () => {
 
   const submitAction = (e) => {
     e.preventDefault()
-  
+
     const machineid = document.getElementById("machineId")
     const latitude = document.getElementById("latitude")
     const longitude = document.getElementById("longitude")
-  
+
     const data = {
       machineId: machineid.value,
       latitude: latitude.value,
       longitude: longitude.value
     }
-  
-    updateMachine(selectedMachine._id,data).then((res) => {
+
+    updateMachine(selectedMachine._id, data).then((res) => {
       if (res.status) {
         init()
         toast.success("Successfully updated")
         document.getElementById('modal-close').click();
       }
     })
-  
+
   }
 
   return (
@@ -78,10 +97,18 @@ const ViewallMachine = () => {
                     <td>{data.longitude}</td>
                     <td>{data.storage}</td>
                     <td><span class={data.status == "online" ? `badge bg-success` : `badge bg-danger`}>{data.status}</span></td>
-                    <td>{data.lastCollection ? data.lastCollection : '-'}</td>
+                    <td>{data.last_collect ? new Date(data.last_collect).toLocaleString('en-US', {
+                      year: 'numeric',
+                      month: 'numeric', 
+                      day: 'numeric',
+                      hour: 'numeric',
+                      minute: 'numeric',
+                      second: 'numeric',
+                      hour12: true // For 12-hour format; change to false for 24-hour format
+                    })  : '-'}</td>
                     <td>
                       <div className='d-flex'>
-                        <button className='btn text-primary' data-bs-toggle="modal" data-bs-target="#editmodal" onClick={()=>{setSelectedMachine(data)}}><i class="bi bi-pencil-fill"></i></button>
+                        <button className='btn text-primary' data-bs-toggle="modal" data-bs-target="#editmodal" onClick={() => { setSelectedMachine(data); setLocation({ lat: data.latitude, lng: data.longitude }) }}><i class="bi bi-pencil-fill"></i></button>
                         <button className='btn text-danger' onClick={() => deleteMach(data._id)}><i class="bi bi-trash3-fill"></i></button>
                       </div>
                     </td>
@@ -95,15 +122,15 @@ const ViewallMachine = () => {
         <div class="modal fade" id="editmodal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
           <div class="modal-dialog" role="document">
             <div class="modal-content">
-            <form onSubmit={submitAction}>
-              <div class="modal-header justify-content-between">
-                <h5 class="modal-title" id="exampleModalLongTitle">Update Machine </h5>
-                <button type="button" id="modal-close" class="btn text-danger" data-bs-dismiss="modal" aria-label="Close">
-                  <i class="bi bi-x-circle"></i>
-                </button>
-              </div>
-              <div class="modal-body">
-                
+              <form onSubmit={submitAction}>
+                <div class="modal-header justify-content-between">
+                  <h5 class="modal-title" id="exampleModalLongTitle">Update Machine </h5>
+                  <button type="button" id="modal-close" class="btn text-danger" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="bi bi-x-circle"></i>
+                  </button>
+                </div>
+                <div class="modal-body">
+
                   <div className="row g-2">
                     <div className="col col-12 col-sm-12 col-md-12">
                       <label htmlFor="" className="form-label">Machine Id</label>
@@ -111,19 +138,30 @@ const ViewallMachine = () => {
                     </div>
                     <div className="col col-12 col-sm-12 col-md-12">
                       <label htmlFor="" className="form-label">Longitude</label>
-                      <input type="text" className="form-control" id='latitude' defaultValue={selectedMachine && selectedMachine.latitude} placeholder='Enter Latitue' required />
+                      <input type="text" className="form-control" id='latitude' defaultValue={selectedMachine && selectedMachine.latitude} value={location.lat} placeholder='Enter Latitue' required />
                     </div>
                     <div className="col col-12 col-sm-12 col-md-12">
                       <label htmlFor="" className="form-label">Latitude</label>
-                      <input type="text" className="form-control" id='longitude' defaultValue={selectedMachine && selectedMachine.longitude} placeholder='Enter Longitude' required />
+                      <input type="text" className="form-control" id='longitude' defaultValue={selectedMachine && selectedMachine.longitude} value={location.lng} placeholder='Enter Longitude' required />
+                    </div>
+                    <div className="col col-12 col-sm-12 col-md-12">
+                      <MapPicker
+                        defaultLocation={location}
+                        zoom={zoom}
+                        mapTypeId="roadmap"
+                        style={{ height: '250px', width: '100%' }}
+                        onChangeLocation={handleChangeLocation}
+                        onChangeZoom={handleChangeZoom}
+                        apiKey='AIzaSyB_D6SgHRz8T6y2fPiVtAS4uYq0eUfkBUQ' />
                     </div>
                   </div>
-                
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary">Save changes</button>
-              </div>
+
+
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
               </form>
             </div>
           </div>
