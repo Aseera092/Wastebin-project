@@ -10,13 +10,13 @@ export default function Navbar() {
           <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSLU5_eUUGBfxfxRd4IquPiEwLbt4E_6RYMw&s" alt="hugenerd" width="50" height="50" className="rounded-circle" />
         </a>
         <ul className="dropdown-menu dropdown-menu-lg-end text-small shadow">
-          <li><a className="dropdown-item" href="#">Guest</a></li>
+          <li><a className="dropdown-item" href="#">Admin</a></li>
           {/* <li><a className="dropdown-item" href="#">Settings</a></li>
           <li><a className="dropdown-item" href="#">Profile</a></li> */}
           <li>
             <hr className="dropdown-divider" />
           </li>
-          <li><a className="dropdown-item" onClick={()=>{localStorage.clear(); navigate('/')}}>Sign out</a></li>
+          <li><a className="dropdown-item" onClick={()=>{localStorage.clear(); navigate('/login')}}>Sign out</a></li>
         </ul>
       </div>
     </nav>

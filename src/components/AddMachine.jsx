@@ -10,11 +10,14 @@ const submitAction = async (e) => {
   const machineid = document.getElementById("machineId");
   const latitude = document.getElementById("latitude");
   const longitude = document.getElementById("longitude");
+  const landmark = document.getElementById("landmark");
+
 
   const data = {
     machineId: machineid.value,
+    landmark: landmark.value,
     latitude: latitude.value,
-    longitude: longitude.value
+    longitude: longitude.value,
   };
 
 
@@ -25,6 +28,7 @@ const submitAction = async (e) => {
       machineid.value = "";
       latitude.value = "";
       longitude.value = "";
+      landmark.value = ""
     } else {
       toast.error(res.error || "Failed to add machine. Please try again.");
     }
@@ -75,6 +79,10 @@ const AddMachine = () => {
           <div className="col col-12 col-sm-12 col-md-6">
             <label htmlFor="machineId" className="form-label">Machine Id</label>
             <input type="text" className="form-control" id='machineId' placeholder='Enter Machine ID' required />
+          </div>
+          <div className="col col-12 col-sm-12 col-md-6">
+            <label htmlFor="landmark" className="form-label">Land Mark</label>
+            <input type="text" className="form-control" id='landmark' placeholder='Enter landmark' required />
           </div>
           <div className="col col-12 col-sm-12 col-md-6">
             <label htmlFor="latitude" className="form-label">Latitude</label>

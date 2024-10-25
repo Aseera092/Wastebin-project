@@ -1,5 +1,7 @@
 const Driver = require("../model/driverModel");
 const Machine = require("../model/machineModel");
+const Request = require("../model/requestModel");
+
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { firebaseDatabase } = require("../util/firebase-conn");
@@ -184,6 +186,7 @@ const machineDirection = async (req, res, next) => {
         const machines = await Machine.find()
         let shortDistance = 0
         let shortDistanceMachine = undefined
+        let machineUser = ""
         if (!currentLocation || !currentLocation.latLng) {
             throw new Error("Invalid location format. Expecting { latLng: { latitude, longitude } }");
         }
@@ -207,7 +210,7 @@ const machineDirection = async (req, res, next) => {
                 console.log("latitude", dt.latitude, "longitude", dt.longitude);
 
                 const distance = await callComputeRoutes(currentLocation,
-                    { latLng: { latitude: dt.latitude, longitude: dt.longitude } }// Los Angeles
+                    { latLng: { latitude: dt.latitude, longitude: dt.longitude } }
                 );
 
                 if (distance && shortDistance == 0) {
@@ -220,19 +223,45 @@ const machineDirection = async (req, res, next) => {
                 }
                 console.log(distance);
                 console.log("short distance", shortDistance);
+                machineUser = "Machine"
                 // console.log("short distance machine",shortDistanceMachine);
             }
         }
+
+        const requests  = await Request.find({status:"Approved"}).populate('users').exec();
+
+        for (const dt of requests) {
+            console.log("latitude", dt.latitude, "longitude", dt.longitude);
+
+            const distance = await callComputeRoutes(currentLocation,
+                { latLng: { latitude: dt.latitude, longitude: dt.longitude } }
+            );
+
+            if (distance && shortDistance == 0) {
+                shortDistance = distance
+                shortDistanceMachine = dt
+            }
+            if (distance && shortDistance > distance) {
+                shortDistance = distance
+                shortDistanceMachine = dt
+            }
+            console.log(distance);
+            console.log("short distance", shortDistance);
+            machineUser = "User"
+            // console.log("short distance machine",shortDistanceMachine);
+        }
+        
         if (shortDistanceMachine) {
             res.status(200).json({
                 status: true,
                 message: "Route computed successfully",
+                type:machineUser,
                 data: shortDistanceMachine
             });
         }else{
             res.status(200).json({
                 status: false,
-                message: "There is no wastebin found to collect waste",
+                message: "There is no waste found to collect waste",
             });
         }
         

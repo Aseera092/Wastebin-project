@@ -5,11 +5,49 @@ import AddMachine from "../components/AddMachine";
 import ViewallMachine from "../components/ViewallMachine";
 import ViewDriver from "../components/ViewDriver";
 import UserLogin from "../components/UserLogin";
+import MainLayout from "../layout/mainLayout";
+import Home from "../components/home";
+import About from "../components/about";
+import Services from "../components/services";
+import Contact from "../components/contact";
+import UserRequest from "../components/request";
+import Signup from "../components/Signup";
+import ViewallRequest from "../components/viewRequest";
 
 export const routes = createBrowserRouter([
   {
     path: "/",
-    element: <UserLogin />
+    element: <MainLayout />,
+    children:[
+      {
+        path:'',
+        element:<Home/>
+      },
+      {
+        path:'about',
+        element:<About/>
+      },
+      {
+        path:'service',
+        element:<Services/>
+      },
+      {
+        path:'contact',
+        element:<Contact/>
+      },
+      {
+        path:'request',
+        element:<UserRequest/>
+      },
+      {
+        path: "/signup",
+        element: <Signup />
+      },
+      {
+        path: "/login",
+        element: <UserLogin />
+      }
+    ]
   },
   {
     path: "/dashboard",
@@ -30,6 +68,10 @@ export const routes = createBrowserRouter([
       {
         path: "view-driver",
         element: <ViewDriver />
+      },
+      {
+        path: "view-request",
+        element: <ViewallRequest />
       }
     ]
   }

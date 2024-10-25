@@ -40,6 +40,19 @@ const SIDEBARLIST = [
             }
         ]
     },
+    ,
+    {
+        title: 'Requests',
+        link: '',
+        icon: 'fs-4 bi-chat-left-quote-fill',
+        isExtendable: true,
+        child: [
+            {
+                title: 'View Request',
+                link: '/dashboard/view-request'
+            }
+        ]
+    },
 ]
 
 export default function Sidebar() {

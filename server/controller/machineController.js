@@ -1,4 +1,6 @@
 const Machine = require("../model/machineModel");
+const Request = require("../model/requestModel");
+
 const { firebaseDatabase } = require("../util/firebase-conn");
 
 const addMachine = async (req, res, next) => {
@@ -70,7 +72,7 @@ const updateMachine = async (req, res, next) => {
     const { machineId } = req.body;
 
     // Validate machineId
-   
+
 
     try {
         // Fetch and update the machine in MongoDB
@@ -106,7 +108,7 @@ const deleteMachine = async (req, res, next) => {
         const { machineId } = machine;
 
         // Validate machineId
-       
+
 
         await Machine.findByIdAndDelete(req.params.id);  // Delete from MongoDB
         await firebaseDatabase.ref(machineId).remove();  // Remove from Firebase
@@ -127,28 +129,46 @@ const deleteMachine = async (req, res, next) => {
 
 const collectMachineWaste = async (req, res, next) => {
     try {
+
         const machine = await Machine.findById(req.params.id);
-        
+        const request = await Request.findById(req.params.id);
 
-        // Validate machine existence
-        if (!machine) {
-            return res.status(404).json({ status: false, error: 'Machine not found.' });
+        if (!machine && !request) {
+            return res.status(404).json({ status: false, error: 'Data not found.' });
         }
 
-        const updated = await Machine.findByIdAndUpdate(machine.id, {last_collect: new Date()},{ new: true });
+        if (machine) {
+            const updated = await Machine.findByIdAndUpdate(machine.id, { last_collect: new Date() }, { new: true });
 
-        if (updated) {
-            res.status(200).json({
-                status: true,
-                data: machine
-            });
+            if (updated) {
+                res.status(200).json({
+                    status: true,
+                    data: machine
+                });
+            } else {
+                res.status(200).json({
+                    status: false,
+                    message: 'not updated some error'
+                });
+            }
         }else{
-            res.status(200).json({
-                status: false,
-                message: 'not updated some error'
-            });
+            const updated = await Request.findByIdAndUpdate(request.id, { status: "Collected" }, { new: true });
+
+            if (updated) {
+                res.status(200).json({
+                    status: true,
+                    data: updated
+                });
+            } else {
+                res.status(200).json({
+                    status: false,
+                    message: 'not updated some error'
+                });
+            }
         }
-        
+
+
+
 
     } catch (error) {
         res.status(500).json({

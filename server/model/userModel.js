@@ -3,11 +3,11 @@ const bcrypt = require('bcrypt');
 
 // Define the driver schema
 const userSchema = new mongoose.Schema({
-    userName: {
+    firstName: {
         type: String,
         required: true,
     },
-    address: {
+    lastName: {
         type: String,
         required: true,
     },
@@ -23,54 +23,28 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    house_no: {
+    houseNo: {
         type: String,
         required: true,
     },
-    location_details: {
+    location: {
         type: String,
         required: true,
     },
-    request_date: {
-        type: String,
-        required: true,
-    },
-    suggestions: {
+    address: {
         type: String,
         required: true,
     },
     status: {
         type: String,
         enum: ['online', 'offline'],
-        default: 'offline',
-        required: true
-    },
-    password: {
-        type: String,
-        required: true,
-        minlength: 6 // Minimum password length
-    },
-    confirmPassword: {
-        type: String,
+        default: 'online',
         required: true
     }
 }, { timestamps: true });
 
-// Pre-save middleware to hash the password
-userSchema.pre('save', async function(next) {
-    if (this.isModified('password')) {
-        // Hash the password
-        this.password = await bcrypt.hash(this.password, 10);
-    }
-    next();
-});
-
-// Method to check if passwords match
-userSchema.methods.isPasswordMatch = function(plainPassword) {
-    return bcrypt.compareSync(plainPassword, this.password);
-};
 
 // Create the driver model
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model('users', userSchema);
 
 module.exports = User;

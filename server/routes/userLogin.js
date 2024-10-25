@@ -2,6 +2,8 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../model/userLogin');
+const Users = require('../model/userModel');
+
 
 const router = express.Router();
 
@@ -42,11 +44,17 @@ router.post('/login', async (req, res) => {
         // Generate JWT token
         const token = jwt.sign({ id: user._id }, "ASEERA123456", { expiresIn: '1h' });
 
-        res.status(200).json({status:true,isAdmin:user.isAdmin, token, message: 'Login successful' });
+        if (user.isAdmin) {
+            res.status(200).json({ status: true, isAdmin: user.isAdmin, token, message: 'Login successful' });
+        }else{
+            const users = await Users.find({emailId:user.username})
+            res.status(200).json({status:true,isAdmin:user.isAdmin,data:users[0], token, message: 'Login successful' });
+        }
+
     } catch (err) {
-        res.status(500).json({status:true, error: 'Login failed' });
+        res.status(500).json({ status: true, error: 'Login failed' });
         console.log(err);
-        
+
     }
 });
 

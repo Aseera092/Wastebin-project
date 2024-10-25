@@ -23,6 +23,7 @@ export default function MapView() {
     const [destination, setDestination] = useState();
     const [isShow, setIsShow] = useState(false);
     const [isStart, setIsStart] = useState(false);
+    const [isUser, setIsUser] = useState(false);
     const [mapReload, setMapReload] = useState(true);
 
     const count = useRef(0);
@@ -93,9 +94,13 @@ export default function MapView() {
                 setOrigin(currentLocation)
                 setDestination({ lat: res.data.latitude, lng: res.data.longitude })
                 setIsDirection(true)
+                setIsShow(false)
                 setCurrentMachine(res.data)
+                if (res.type === 'User') {
+                    setIsUser(true)
+                }
             } else {
-                isDirection(false)
+                setIsDirection(false)
             }
         })
     }
@@ -127,11 +132,13 @@ export default function MapView() {
             const url = `https://www.google.com/maps/dir/${origin.lat},${origin.lng}/${destination.lat},${destination.lng}`
             window.open(url,'_blank');
             setIsStart(true)
+            
         }else{
             setIsDirection(false)
             setIsStart(false)
             setDefaultLocation(currentLocation)
             setMapReload(false)
+            setIsUser(false)
             collectWasteAPI(currentMachine._id).then((res)=>{
                 console.log(res);
                 
@@ -243,6 +250,7 @@ export default function MapView() {
             <div className='current-location-button' onClick={setToCurrentLocation}><i className='fa fa-location-arrow'></i></div>
             <div className='collect-waste-button' onClick={collectWasteHandle}><h3>Collect Waste</h3></div>
             {isDirection && <button className='direction-start' onClick={onStart}>{isStart ? "Collected" : "Start" }</button>}
+            {isUser && <button className='call-btn' onClick={()=>{window.open(`tel:${currentMachine.users.mobileNo}`)}}><i className='fa fa-phone'></i></button>}
             {/* <a className='direction-start' target='_blank' >Start</a> */}
 
             <MachineList machineclick={moveToMachine} />

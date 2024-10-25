@@ -52,11 +52,14 @@ const ViewallMachine = () => {
     const machineid = document.getElementById("machineId")
     const latitude = document.getElementById("latitude")
     const longitude = document.getElementById("longitude")
+    const landmark = document.getElementById("landmark")
+
 
     const data = {
       machineId: machineid.value,
       latitude: latitude.value,
-      longitude: longitude.value
+      longitude: longitude.value,
+      landmark: landmark.value
     }
 
     updateMachine(selectedMachine._id, data).then((res) => {
@@ -78,6 +81,7 @@ const ViewallMachine = () => {
             <tr>
               <th scope="col">Sl No</th>
               <th scope="col">Machine ID</th>
+              <th scope="col">Landmark</th>
               <th scope="col">Latitude</th>
               <th scope="col">Longitude</th>
               <th scope="col">Waste Level(%)</th>
@@ -93,6 +97,7 @@ const ViewallMachine = () => {
                   <tr>
                     <th scope="row">{ind + 1}</th>
                     <td>{data.machineId}</td>
+                    <td>{data.landmark}</td>
                     <td>{data.latitude}</td>
                     <td>{data.longitude}</td>
                     <td>{data.storage}</td>
@@ -135,6 +140,10 @@ const ViewallMachine = () => {
                     <div className="col col-12 col-sm-12 col-md-12">
                       <label htmlFor="" className="form-label">Machine Id</label>
                       <input type="text" className="form-control" id='machineId' defaultValue={selectedMachine && selectedMachine.machineId} placeholder='Enter Machine ID' required />
+                    </div>
+                    <div className="col col-12 col-sm-12 col-md-12">
+                      <label htmlFor="" className="form-label">Landmark</label>
+                      <input type="text" className="form-control" id='landmark' defaultValue={selectedMachine && selectedMachine.landmark} placeholder='Enter landmark' required />
                     </div>
                     <div className="col col-12 col-sm-12 col-md-12">
                       <label htmlFor="" className="form-label">Longitude</label>

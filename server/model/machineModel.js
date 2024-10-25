@@ -7,6 +7,10 @@ const machineSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
+  landmark: {
+    type: String,
+    required: true,
+  },
   latitude: {
     type: Number,
     required: true

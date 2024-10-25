@@ -3,9 +3,9 @@ import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import './Login.css'; // Optional, for adding your custom styles
 import axios from 'axios'; // Assuming you're using axios for API calls
-import {userLogin} from "../services/userLogin";
+import { userLogin } from "../services/userLogin";
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { userLoginAPI } from "../services/user";
 
 const Login = () => {
@@ -15,36 +15,38 @@ const Login = () => {
 
 
     useEffect(() => {
-      if(localStorage.getItem('adminLogin')){
-        navigate('/dashboard');
-      }else if (localStorage.getItem('userLogin')) {
-        navigate('/user');
-      }
+        if (localStorage.getItem('adminLogin')) {
+            navigate('/dashboard');
+        } else if (localStorage.getItem('userLogin')) {
+            navigate('/user');
+        }
     }, [])
-    
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (validateForm()) {
-           
-           userLoginAPI({
-            username:email,
-            password:password
-           }).then((res)=>{
-            if (res.status) {
-                toast.success("Login Successful!");
-                // Example: Redirect to admin dashboard
-                if (res.isAdmin) {
-                   navigate('/dashboard')
-                   localStorage.setItem("adminLogin","true")
+
+            userLoginAPI({
+                username: email,
+                password: password
+            }).then((res) => {
+                if (res.status) {
+                    toast.success("Login Successful!");
+                    // Example: Redirect to admin dashboard
+                    if (res.isAdmin) {
+                        navigate('/dashboard')
+                        localStorage.setItem("adminLogin", "true")
+                    } else {
+                        navigate('/')
+                        localStorage.setItem("userLogin", "true")
+                        console.log(res.data);
+                        localStorage.setItem("userId", `${res.data._id}`)
+                    }
                 } else {
-                    navigate('/user')
-                    localStorage.setItem("userLogin","true")
+                    toast.error(res.message || "Login failed!");
                 }
-            } else {
-                toast.error(res.message || "Login failed!");
-            }
-           }).catch ((error)=> {
+            }).catch((error) => {
                 toast.error("An error occurred while logging in.");
             })
         }
@@ -65,8 +67,9 @@ const Login = () => {
     };
 
     return (
+
         <div className="login-container">
-            <h2>Admin Login</h2>
+            <h2>Sign in</h2>
             <form onSubmit={handleSubmit} className="login-form">
                 <div className="form-group">
                     <label htmlFor="email">Email</label>

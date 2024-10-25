@@ -1,33 +1,46 @@
 const User = require("../model/userModel");
+const UserLogin = require('../model/userLogin');
+const bcrypt = require('bcryptjs');
 
 const AddUser = async (req, res, next) => {
     try {
-        // Validate password and confirmPassword
-        if (req.body.password !== req.body.confirmPassword) {
+
+        // Check if a driver with the same name already exists
+        const existingMobileUser = await User.findOne({ mobileNo: req.body.mobileNo });
+        if (existingMobileUser) {
             return res.status(400).json({
                 status: false,
-                message: "Passwords do not match"
+                message: "Mobile Number already exists"
             });
         }
 
         // Check if a driver with the same name already exists
-        const existingUser = await Driver.findOne({ mobileNo: req.body.mobileNo });
-        if (existingUser) {
+        const existingEmailUser = await User.findOne({ emailId: req.body.emailId });
+        if (existingEmailUser) {
             return res.status(400).json({
                 status: false,
-                message: "User already exists"
+                message: "Email already exists"
             });
         }
-        const UserId = "US" + req.body.mobileNo.substring(6,9);
 
         // Create a new driver instance
-        const user = new User(req.body);
+        const {password, ...requetsData} = req.body;
+        const user = new User(requetsData);
         await user.save(); // Wait for the save to complete
+        // Hash password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const userLogins = new UserLogin({
+            username: user.emailId,
+            password: hashedPassword,
+            isAdmin : false
+        })
+        await userLogins.save()
 
         res.status(201).json({
             status: true,
-            message: "User added successfully",
-            data: user // Return the saved driver object
+            message: "registered successfully",
+            data: user 
         });
     } catch (error) {
         res.status(500).json({

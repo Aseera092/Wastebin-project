@@ -11,3 +11,23 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.text-shadow-5{
+  text-shadow: 0 0 6px #0009;
+}
+
+.text-shadow-4{
+  text-shadow: 0 0 6px #0007;
+}
+
+.text-shadow-3{
+  text-shadow: 0 0 6px #0005;
+}
+
+.text-shadow-2{
+  text-shadow: 0 0 6px #0003;
+}
+
+.text-shadow-1{
+  text-shadow: 0 0 6px #0001;
+}
