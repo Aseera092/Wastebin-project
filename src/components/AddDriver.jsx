@@ -195,7 +195,7 @@ const AddDriver = () => {
             {errors.idProof && <div className="invalid-feedback">{errors.idProof}</div>}
           </div>
           <div className="col col-12 col-sm-12 col-md-6">
-            <label className="form-label">Upload selected Id Proof</label>
+            <label className="form-label">Upload selected Id Proof(Only JPEG, PNG, and PDF files are allowed)</label>
             <input
               type="file"
               name="uploadIdProof"

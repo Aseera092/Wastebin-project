@@ -5,6 +5,7 @@ import AddMachine from "../components/AddMachine";
 import ViewallMachine from "../components/ViewallMachine";
 import ViewDriver from "../components/ViewDriver";
 import UserLogin from "../components/UserLogin";
+
 import MainLayout from "../layout/mainLayout";
 import Home from "../components/home";
 import About from "../components/about";
@@ -74,5 +75,15 @@ export const routes = createBrowserRouter([
         element: <ViewallRequest />
       }
     ]
+
+  },
+  {
+    path: "Login",
+    element: <UserLogin />
+  },
+  {
+    path: "user-request",
+    element: <UserRequest />
+
   }
 ]);
